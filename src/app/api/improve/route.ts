@@ -63,11 +63,11 @@ export async function POST(req: Request) {
         ? response.output_text.trim()
         : undefined;
 
-    // 2) Fallback to inspecting the structured output array
-    if (!improved) {
-      const textBlock = response.output?.[0]?.content?.[0]?.text;
-      improved = textBlock?.value?.trim();
-    }
+
+if (!improved) {
+  const textBlock = (response.output as any)?.[0]?.content?.[0]?.text;
+  improved = typeof textBlock === "string" ? textBlock.trim() : undefined;
+}
 
     // 3) If still nothing, log the full response for debugging and return a safe message
     if (!improved) {
