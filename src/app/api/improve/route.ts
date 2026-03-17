@@ -8,29 +8,29 @@ const client = new OpenAI({
 
 type Tone =
   | "Calm"
-  | "Funny"
-  | "Angry"
-  | "Sad"
-  | "Confident"
-  | "Professional"
-  | "Assertive";
+  | "Understanding"
+  | "Apologetic"
+  | "Flirty"
+  | "Honest"
+  | "Boundary"
+  | "Comforting";
 
 function toneGuidance(tone: Tone) {
   switch (tone) {
     case "Calm":
-      return "Relaxed, non-emotional.";
-    case "Funny":
-      return "Light humor.";
-    case "Angry":
-      return "Direct, frustrated but controlled.";
-    case "Sad":
-      return "Emotional, softer tone.";
-    case "Confident":
-      return "Direct, self-assured.";
-    case "Professional":
-      return "Polite and formal.";
-    case "Assertive":
-      return "Firm boundaries.";
+      return "De-escalate conflict. Stay calm, relaxed, and non-emotional.";
+    case "Understanding":
+      return "Empathetic reply. Validate feelings, be warm and considerate.";
+    case "Apologetic":
+      return "Apologize properly: take responsibility, acknowledge impact, and keep it sincere without overexplaining.";
+    case "Flirty":
+      return "Playful/romantic. Light, charming, and respectful; avoid being creepy or explicit.";
+    case "Honest":
+      return "Real and direct. Say what you mean clearly, without being harsh.";
+    case "Boundary":
+      return "Set limits clearly. Firm, respectful boundaries with a clear ask or next step.";
+    case "Comforting":
+      return "Support someone emotionally. Gentle, reassuring, and kind; keep it concise.";
   }
 }
 
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       return null;
     })) as { email?: unknown; tone?: unknown } | null;
     const email = typeof body?.email === "string" ? body.email : "";
-    const tone = (body?.tone as Tone) || "Professional";
+    const tone = (body?.tone as Tone) || "Calm";
 
     if (!email.trim()) {
       return Response.json({ result: "Please paste the message you received." }, { status: 400 });
@@ -54,12 +54,12 @@ export async function POST(req: Request) {
 
     if (
       tone !== "Calm" &&
-      tone !== "Funny" &&
-      tone !== "Angry" &&
-      tone !== "Sad" &&
-      tone !== "Confident" &&
-      tone !== "Professional" &&
-      tone !== "Assertive"
+      tone !== "Understanding" &&
+      tone !== "Apologetic" &&
+      tone !== "Flirty" &&
+      tone !== "Honest" &&
+      tone !== "Boundary" &&
+      tone !== "Comforting"
     ) {
       return Response.json(
         { result: "Invalid tone selection. Choose one of the available tones." },
@@ -74,11 +74,11 @@ export async function POST(req: Request) {
         {
           role: "system",
           content:
-            "You are an assistant that writes replies to messages. Write a reply that matches the requested tone. Keep it natural, human-like, and concise. Do not over-explain. Output ONLY the reply text (no quotes, no markdown).",
+            "You are helping someone reply to a personal message.\n\nWrite a reply in a requested style.\n\nMake it sound natural, realistic, and emotionally appropriate.\n\nDo not over-explain. Do not sound like AI.\n\nOutput ONLY the reply text (no quotes, no markdown).",
         },
         {
           role: "user",
-          content: `Write a reply to the following message in a ${tone} tone.\n\nKeep it natural, clear, and appropriate. Keep it concise.\n\nMessage:\n${email}\n\nAdditional guidance:\n${toneGuidance(tone)}`,
+          content: `Write a reply in a ${tone} style.\n\nMake it sound natural, realistic, and emotionally appropriate.\n\nDo not over-explain. Do not sound like AI.\n\nMessage:\n${email}\n\nMode guidance:\n${toneGuidance(tone)}`,
         },
       ],
     });

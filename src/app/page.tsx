@@ -4,16 +4,16 @@ import { useMemo, useState } from "react";
 
 type Tone =
   | "Calm"
-  | "Funny"
-  | "Angry"
-  | "Sad"
-  | "Confident"
-  | "Professional"
-  | "Assertive";
+  | "Understanding"
+  | "Apologetic"
+  | "Flirty"
+  | "Honest"
+  | "Boundary"
+  | "Comforting";
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [tone, setTone] = useState<Tone>("Professional");
+  const [tone, setTone] = useState<Tone>("Calm");
   const [improved, setImproved] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +84,7 @@ export default function Home() {
             Reply For Me
           </h1>
           <p className="mt-2 max-w-2xl text-pretty text-sm text-zinc-600 dark:text-zinc-400">
-            Paste a message, choose a tone, and generate a reply.
+            Not sure what to say? Paste a message and get a reply.
           </p>
         </header>
 
@@ -114,13 +114,13 @@ export default function Home() {
                   onChange={(e) => setTone(e.target.value as Tone)}
                   className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm shadow-sm outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-700 dark:bg-zinc-950 dark:focus:border-zinc-600 dark:focus:ring-zinc-50/10 sm:w-56"
                 >
-                  <option>Calm</option>
-                  <option>Funny</option>
-                  <option>Angry</option>
-                  <option>Sad</option>
-                  <option>Confident</option>
-                  <option>Professional</option>
-                  <option>Assertive</option>
+                  <option value="Calm">Calm (de-escalate conflict)</option>
+                  <option value="Understanding">Understanding (empathetic reply)</option>
+                  <option value="Apologetic">Apologetic (say sorry properly)</option>
+                  <option value="Flirty">Flirty (playful / romantic)</option>
+                  <option value="Honest">Honest (real and direct)</option>
+                  <option value="Boundary">Boundary (set limits clearly)</option>
+                  <option value="Comforting">Comforting (support someone emotionally)</option>
                 </select>
               </div>
 
