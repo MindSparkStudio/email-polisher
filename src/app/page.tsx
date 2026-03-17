@@ -2,7 +2,14 @@
 
 import { useMemo, useState } from "react";
 
-type Tone = "Professional" | "Friendly" | "Short";
+type Tone =
+  | "Calm"
+  | "Funny"
+  | "Angry"
+  | "Sad"
+  | "Confident"
+  | "Professional"
+  | "Assertive";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -10,6 +17,7 @@ export default function Home() {
   const [improved, setImproved] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const canSubmit = useMemo(() => email.trim().length > 0 && !isLoading, [email, isLoading]);
 
@@ -54,15 +62,29 @@ export default function Home() {
     }
   }
 
+  async function onCopy() {
+    const text = improved.trim();
+    if (!text) return;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      console.error("[Home] Failed to copy to clipboard:", e);
+      setError("Could not copy to clipboard. Please copy manually.");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
       <div className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
         <header className="mb-8">
           <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-            AI Email Polisher
+            Reply For Me
           </h1>
           <p className="mt-2 max-w-2xl text-pretty text-sm text-zinc-600 dark:text-zinc-400">
-            Paste an email, choose a tone, and get a polished version back.
+            Paste a message, choose a tone, and generate a reply.
           </p>
         </header>
 
@@ -76,7 +98,7 @@ export default function Home() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Paste your email here…"
+                placeholder="Paste the message you received..."
                 className="min-h-44 w-full resize-y rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-700 dark:bg-zinc-950 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:ring-zinc-50/10"
               />
             </div>
@@ -92,9 +114,13 @@ export default function Home() {
                   onChange={(e) => setTone(e.target.value as Tone)}
                   className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm shadow-sm outline-none focus:border-zinc-300 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-700 dark:bg-zinc-950 dark:focus:border-zinc-600 dark:focus:ring-zinc-50/10 sm:w-56"
                 >
+                  <option>Calm</option>
+                  <option>Funny</option>
+                  <option>Angry</option>
+                  <option>Sad</option>
+                  <option>Confident</option>
                   <option>Professional</option>
-                  <option>Friendly</option>
-                  <option>Short</option>
+                  <option>Assertive</option>
                 </select>
               </div>
 
@@ -104,7 +130,7 @@ export default function Home() {
                 disabled={!canSubmit}
                 className="inline-flex h-10 items-center justify-center rounded-xl bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-white"
               >
-                {isLoading ? "Improving…" : "Improve Email"}
+                {isLoading ? "Generating…" : "Generate Reply"}
               </button>
             </div>
 
@@ -116,7 +142,7 @@ export default function Home() {
 
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium">Improved email</h2>
+                <h2 className="text-sm font-medium">Generated reply</h2>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400">
                   {improved ? `${improved.length} chars` : ""}
                 </span>
@@ -124,9 +150,24 @@ export default function Home() {
               <div className="min-h-24 whitespace-pre-wrap rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
                 {improved || (
                   <span className="text-zinc-500 dark:text-zinc-400">
-                    Your improved email will appear here.
+                    Your reply will appear here.
                   </span>
                 )}
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={onCopy}
+                  disabled={!improved.trim()}
+                  className="inline-flex h-9 items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+                >
+                  Copy
+                </button>
+                {copied ? (
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                    Copied!
+                  </span>
+                ) : null}
               </div>
             </div>
           </div>

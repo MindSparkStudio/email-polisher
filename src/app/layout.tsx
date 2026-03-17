@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Email Polisher",
-  description: "Polish emails with AI in a chosen tone.",
+  title: "Reply For Me",
+  description: "Generate a reply with AI in a chosen tone.",
 };
 
 export default function RootLayout({

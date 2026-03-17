@@ -6,16 +6,31 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-type Tone = "Professional" | "Friendly" | "Short";
+type Tone =
+  | "Calm"
+  | "Funny"
+  | "Angry"
+  | "Sad"
+  | "Confident"
+  | "Professional"
+  | "Assertive";
 
 function toneGuidance(tone: Tone) {
   switch (tone) {
+    case "Calm":
+      return "Relaxed, non-emotional.";
+    case "Funny":
+      return "Light humor.";
+    case "Angry":
+      return "Direct, frustrated but controlled.";
+    case "Sad":
+      return "Emotional, softer tone.";
+    case "Confident":
+      return "Direct, self-assured.";
     case "Professional":
-      return "Make it clear, polished, and professional. Keep the sender's intent. Preserve important specifics (dates, names, numbers).";
-    case "Friendly":
-      return "Make it warm, approachable, and friendly while staying clear. Keep it natural and not overly casual.";
-    case "Short":
-      return "Make it concise and direct. Remove fluff, keep key details and a clear call-to-action if present.";
+      return "Polite and formal.";
+    case "Assertive":
+      return "Firm boundaries.";
   }
 }
 
@@ -34,25 +49,36 @@ export async function POST(req: Request) {
     const tone = (body?.tone as Tone) || "Professional";
 
     if (!email.trim()) {
-      return Response.json({ result: "Please paste an email before improving it." }, { status: 400 });
+      return Response.json({ result: "Please paste the message you received." }, { status: 400 });
     }
 
-    if (tone !== "Professional" && tone !== "Friendly" && tone !== "Short") {
-      return Response.json({ result: "Invalid tone selection. Choose Professional, Friendly, or Short." }, { status: 400 });
+    if (
+      tone !== "Calm" &&
+      tone !== "Funny" &&
+      tone !== "Angry" &&
+      tone !== "Sad" &&
+      tone !== "Confident" &&
+      tone !== "Professional" &&
+      tone !== "Assertive"
+    ) {
+      return Response.json(
+        { result: "Invalid tone selection. Choose one of the available tones." },
+        { status: 400 },
+      );
     }
 
     const response = await client.responses.create({
       model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-      temperature: tone === "Short" ? 0.2 : 0.4,
+      temperature: 0.4,
       input: [
         {
           role: "system",
           content:
-            "You improve drafts of emails. Output ONLY the improved email body text. Do not add subject lines unless the user already included one. Do not add quotes or markdown.",
+            "You are an assistant that writes replies to messages. Write a reply that matches the requested tone. Keep it natural, human-like, and concise. Do not over-explain. Output ONLY the reply text (no quotes, no markdown).",
         },
         {
           role: "user",
-          content: `Tone: ${tone}\nGuidance: ${toneGuidance(tone)}\n\nEmail:\n${email}`,
+          content: `Write a reply to the following message in a ${tone} tone.\n\nKeep it natural, clear, and appropriate. Keep it concise.\n\nMessage:\n${email}\n\nAdditional guidance:\n${toneGuidance(tone)}`,
         },
       ],
     });
